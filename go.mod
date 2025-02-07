@@ -15,6 +15,7 @@ require (
 	github.com/rosedblabs/wal v1.3.8
 	github.com/stretchr/testify v1.10.0
 	go.etcd.io/bbolt v1.4.0
+	golang.org/x/sync v0.10.0
 	google.golang.org/grpc v1.70.0
 	google.golang.org/protobuf v1.36.4
 )
@@ -42,3 +43,6 @@ require (
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+// replacing for #https://github.com/rosedblabs/wal/pull/45
+replace github.com/rosedblabs/wal v1.3.8 => github.com/ankur-anand/wal v0.0.1
