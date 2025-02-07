@@ -19,14 +19,23 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	WALReplicationService_StreamWAL_FullMethodName = "/kvalchemy.replicator.v1.WALReplicationService/StreamWAL"
+	WALReplicationService_StreamWAL_FullMethodName      = "/kvalchemy.replicator.v1.WALReplicationService/StreamWAL"
+	WALReplicationService_PutKV_FullMethodName          = "/kvalchemy.replicator.v1.WALReplicationService/PutKV"
+	WALReplicationService_StreamPutKV_FullMethodName    = "/kvalchemy.replicator.v1.WALReplicationService/StreamPutKV"
+	WALReplicationService_DeleteKV_FullMethodName       = "/kvalchemy.replicator.v1.WALReplicationService/DeleteKV"
+	WALReplicationService_StreamDeleteKV_FullMethodName = "/kvalchemy.replicator.v1.WALReplicationService/StreamDeleteKV"
 )
 
 // WALReplicationServiceClient is the client API for WALReplicationService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WALReplicationServiceClient interface {
+	// / Stream WAL Logs
 	StreamWAL(ctx context.Context, in *StreamWALRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamWALResponse], error)
+	PutKV(ctx context.Context, in *PutKVRequest, opts ...grpc.CallOption) (*PutKVResponse, error)
+	StreamPutKV(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[StreamPutKVRequest, StreamPutKVResponse], error)
+	DeleteKV(ctx context.Context, in *DeleteKVRequest, opts ...grpc.CallOption) (*DeleteKVResponse, error)
+	StreamDeleteKV(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[StreamDeleteKVRequest, StreamDeleteKVResponse], error)
 }
 
 type wALReplicationServiceClient struct {
@@ -56,11 +65,62 @@ func (c *wALReplicationServiceClient) StreamWAL(ctx context.Context, in *StreamW
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type WALReplicationService_StreamWALClient = grpc.ServerStreamingClient[StreamWALResponse]
 
+func (c *wALReplicationServiceClient) PutKV(ctx context.Context, in *PutKVRequest, opts ...grpc.CallOption) (*PutKVResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PutKVResponse)
+	err := c.cc.Invoke(ctx, WALReplicationService_PutKV_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *wALReplicationServiceClient) StreamPutKV(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[StreamPutKVRequest, StreamPutKVResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &WALReplicationService_ServiceDesc.Streams[1], WALReplicationService_StreamPutKV_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[StreamPutKVRequest, StreamPutKVResponse]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type WALReplicationService_StreamPutKVClient = grpc.ClientStreamingClient[StreamPutKVRequest, StreamPutKVResponse]
+
+func (c *wALReplicationServiceClient) DeleteKV(ctx context.Context, in *DeleteKVRequest, opts ...grpc.CallOption) (*DeleteKVResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteKVResponse)
+	err := c.cc.Invoke(ctx, WALReplicationService_DeleteKV_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *wALReplicationServiceClient) StreamDeleteKV(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[StreamDeleteKVRequest, StreamDeleteKVResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &WALReplicationService_ServiceDesc.Streams[2], WALReplicationService_StreamDeleteKV_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[StreamDeleteKVRequest, StreamDeleteKVResponse]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type WALReplicationService_StreamDeleteKVClient = grpc.ClientStreamingClient[StreamDeleteKVRequest, StreamDeleteKVResponse]
+
 // WALReplicationServiceServer is the server API for WALReplicationService service.
 // All implementations must embed UnimplementedWALReplicationServiceServer
 // for forward compatibility.
 type WALReplicationServiceServer interface {
+	// / Stream WAL Logs
 	StreamWAL(*StreamWALRequest, grpc.ServerStreamingServer[StreamWALResponse]) error
+	PutKV(context.Context, *PutKVRequest) (*PutKVResponse, error)
+	StreamPutKV(grpc.ClientStreamingServer[StreamPutKVRequest, StreamPutKVResponse]) error
+	DeleteKV(context.Context, *DeleteKVRequest) (*DeleteKVResponse, error)
+	StreamDeleteKV(grpc.ClientStreamingServer[StreamDeleteKVRequest, StreamDeleteKVResponse]) error
 	mustEmbedUnimplementedWALReplicationServiceServer()
 }
 
@@ -73,6 +133,18 @@ type UnimplementedWALReplicationServiceServer struct{}
 
 func (UnimplementedWALReplicationServiceServer) StreamWAL(*StreamWALRequest, grpc.ServerStreamingServer[StreamWALResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamWAL not implemented")
+}
+func (UnimplementedWALReplicationServiceServer) PutKV(context.Context, *PutKVRequest) (*PutKVResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PutKV not implemented")
+}
+func (UnimplementedWALReplicationServiceServer) StreamPutKV(grpc.ClientStreamingServer[StreamPutKVRequest, StreamPutKVResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method StreamPutKV not implemented")
+}
+func (UnimplementedWALReplicationServiceServer) DeleteKV(context.Context, *DeleteKVRequest) (*DeleteKVResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteKV not implemented")
+}
+func (UnimplementedWALReplicationServiceServer) StreamDeleteKV(grpc.ClientStreamingServer[StreamDeleteKVRequest, StreamDeleteKVResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method StreamDeleteKV not implemented")
 }
 func (UnimplementedWALReplicationServiceServer) mustEmbedUnimplementedWALReplicationServiceServer() {}
 func (UnimplementedWALReplicationServiceServer) testEmbeddedByValue()                               {}
@@ -106,18 +178,87 @@ func _WALReplicationService_StreamWAL_Handler(srv interface{}, stream grpc.Serve
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type WALReplicationService_StreamWALServer = grpc.ServerStreamingServer[StreamWALResponse]
 
+func _WALReplicationService_PutKV_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PutKVRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WALReplicationServiceServer).PutKV(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WALReplicationService_PutKV_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WALReplicationServiceServer).PutKV(ctx, req.(*PutKVRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _WALReplicationService_StreamPutKV_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(WALReplicationServiceServer).StreamPutKV(&grpc.GenericServerStream[StreamPutKVRequest, StreamPutKVResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type WALReplicationService_StreamPutKVServer = grpc.ClientStreamingServer[StreamPutKVRequest, StreamPutKVResponse]
+
+func _WALReplicationService_DeleteKV_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteKVRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WALReplicationServiceServer).DeleteKV(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WALReplicationService_DeleteKV_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WALReplicationServiceServer).DeleteKV(ctx, req.(*DeleteKVRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _WALReplicationService_StreamDeleteKV_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(WALReplicationServiceServer).StreamDeleteKV(&grpc.GenericServerStream[StreamDeleteKVRequest, StreamDeleteKVResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type WALReplicationService_StreamDeleteKVServer = grpc.ClientStreamingServer[StreamDeleteKVRequest, StreamDeleteKVResponse]
+
 // WALReplicationService_ServiceDesc is the grpc.ServiceDesc for WALReplicationService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var WALReplicationService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "kvalchemy.replicator.v1.WALReplicationService",
 	HandlerType: (*WALReplicationServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "PutKV",
+			Handler:    _WALReplicationService_PutKV_Handler,
+		},
+		{
+			MethodName: "DeleteKV",
+			Handler:    _WALReplicationService_DeleteKV_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "StreamWAL",
 			Handler:       _WALReplicationService_StreamWAL_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "StreamPutKV",
+			Handler:       _WALReplicationService_StreamPutKV_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "StreamDeleteKV",
+			Handler:       _WALReplicationService_StreamDeleteKV_Handler,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "kvalchemy/replicator/v1/service.proto",

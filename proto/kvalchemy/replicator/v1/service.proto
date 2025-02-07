@@ -6,11 +6,21 @@ option go_package = "github.com/ankur-anand/kvalchemy/proto/gen/go/kvalchemy/rep
 import "google/protobuf/timestamp.proto";
 
 service WALReplicationService {
-    rpc StreamWAL(StreamWALRequest) returns (stream StreamWALResponse);
+  /// Stream WAL Logs
+  rpc StreamWAL(StreamWALRequest) returns (stream StreamWALResponse);
+
+  rpc PutKV(PutKVRequest) returns (PutKVResponse);
+
+  rpc StreamPutKV(stream StreamPutKVRequest) returns (StreamPutKVResponse);
+
+  rpc DeleteKV(DeleteKVRequest) returns (DeleteKVResponse);
+
+  rpc StreamDeleteKV(stream StreamDeleteKVRequest) returns (StreamDeleteKVResponse);
+
 }
 
 message StreamWALRequest {
-  optional bytes metadata = 2; // Last applied WAL checkpoint
+  optional bytes metadata = 1; // Last applied WAL checkpoint
 }
 
 // Server's Response Message (Streaming)
@@ -31,3 +41,29 @@ message WALRecord {
   fixed32 checksum = 6;
 }
 
+message PutKVRequest {
+  bytes key = 1;                      // Binary key (Required)
+  bytes value = 2;                    // Binary value (Optional)
+  bytes batch_id = 3;                 // Optional batch identifier (UUID)
+  google.protobuf.Timestamp timestamp = 4; // Timestamp for consistency
+}
+
+message StreamPutKVRequest {
+  repeated PutKVRequest kv_pairs = 1;  // Batch insert requests
+}
+
+message PutKVResponse {}
+
+message StreamPutKVResponse {}
+
+message DeleteKVRequest {
+  bytes key = 1;
+}
+
+message DeleteKVResponse {}
+
+message StreamDeleteKVRequest {
+  repeated DeleteKVRequest deletes = 1; // List of keys to delete
+}
+
+message StreamDeleteKVResponse {}
